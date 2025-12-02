@@ -613,18 +613,19 @@ AXBSSP,AXIA/BEZZA,SPORT SPRING,1SET,4,390
         }
 
         /**
-         * toyyibPay API Integration Logic
+         * toyyibPay API Integration Logic (LIVE)
          */
         
-        // --- ToyyibPay Integration Constants (FOR DEV ONLY) ---
-        const DEV_SECRET_KEY = 'ctwirik8-7zs9-b32n-kpl5-gr86y2gs1vpq'; // YOUR TEST SECRET KEY
-        const DEV_CATEGORY_CODE = 'r6tmvjps'; // YOUR TEST CATEGORY CODE
-        const DEV_API_URL = 'https://dev.toyyibpay.com/index.php/api/createBill';
-        const DEV_PAYMENT_URL = 'https://dev.toyyibpay.com/'; 
+        // --- ToyyibPay Integration Constants (LIVE) ---
+        const LIVE_SECRET_KEY = 'je9pswn4-zt85-qxwr-dbqp-3cudtnwy29zg'; // LIVE Secret Key (inserted as requested)
+        const LIVE_CATEGORY_CODE = '9dkabvdb'; // LIVE Category Code
+        const LIVE_API_URL = 'https://toyyibpay.com/index.php/api/createBill';
+        const LIVE_PAYMENT_URL = 'https://toyyibpay.com/';
         
-        // **CORRECTED URL**
-        const RETURN_URL = 'https://khalstorenetwork.github.io/proride/'; 
+        // Live return URL
+        const RETURN_URL = 'https://proridemalaysia.github.io/prorideMY/'; 
 
+        // The existing handlePayment function is preserved and used. We'll create createBill() wrapper below.
         async function handlePayment() {
             const customerName = document.getElementById('name').value;
             const customerEmail = document.getElementById('email').value;
@@ -655,17 +656,13 @@ AXBSSP,AXIA/BEZZA,SPORT SPRING,1SET,4,390
                 return;
             }
 
-
             const billData = new URLSearchParams();
-            billData.append('userSecretKey', DEV_SECRET_KEY);
-            billData.append('categoryCode', DEV_CATEGORY_CODE);
+            billData.append('userSecretKey', LIVE_SECRET_KEY);
+            billData.append('categoryCode', LIVE_CATEGORY_CODE);
             billData.append('billName', 'Proride App Order');
             billData.append('billDescription', `Order: ${cart.length} item(s). Shipping via ${courier.name}.`);
             billData.append('billAmount', amountInSen); // Amount in sen
-            
-            // ⭐⭐⭐ FIX: Adding the required billPriceSetting parameter ⭐⭐⭐
             billData.append('billPriceSetting', '1'); 
-            
             // Redirect URLs will pass a 'status' parameter to your RETURN_URL
             billData.append('billReturnUrl', `${RETURN_URL}?status=success`); 
             billData.append('billUnpaidUrl', `${RETURN_URL}?status=unsuccessful`); 
@@ -683,8 +680,8 @@ AXBSSP,AXIA/BEZZA,SPORT SPRING,1SET,4,390
             // ---------------------
 
             try {
-                // 1. Call the toyyibPay API to generate the Bill Code
-                const response = await fetch(DEV_API_URL, {
+                // 1. Call the toyyibPay API to generate the Bill Code (LIVE endpoint)
+                const response = await fetch(LIVE_API_URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
@@ -695,7 +692,7 @@ AXBSSP,AXIA/BEZZA,SPORT SPRING,1SET,4,390
                 const responseData = await response.json();
 
                 // --- DEBUGGING LOG ---
-                console.log('ToyyibPay API Raw Response:', responseData);
+                console.log('ToyyibPay API Raw Response (LIVE):', responseData);
                 // ---------------------
 
                 document.getElementById('pay-button').textContent = 'Proceed to Payment';
@@ -705,8 +702,8 @@ AXBSSP,AXIA/BEZZA,SPORT SPRING,1SET,4,390
                     const billCode = responseData[0].BillCode;
                     closeCheckoutModal(); // Close your local modal
                     
-                    // 2. Redirect customer to the toyyibPay payment page
-                    window.location.href = `${DEV_PAYMENT_URL}${billCode}`; 
+                    // 2. Redirect customer to the toyyibPay payment page (LIVE)
+                    window.location.href = `${LIVE_PAYMENT_URL}${billCode}`; 
                 } else {
                     // Error response from API (e.g., {"msg":"Invalid API Key/Secret Key"})
                     console.error('ToyyibPay API Error (Response Data):', responseData);
@@ -716,11 +713,16 @@ AXBSSP,AXIA/BEZZA,SPORT SPRING,1SET,4,390
             } catch (error) {
                 document.getElementById('pay-button').textContent = 'Proceed to Payment';
                 document.getElementById('pay-button').disabled = false;
-                console.error('Network Error during ToyyibPay API call:', error);
+                console.error('Network Error during ToyyibPay API call (LIVE):', error);
                 alert('Could not connect to the payment gateway API. Check your network connection.');
             }
         }
-        
+
+        // createBill wrapper (so any calls to createBill() will work)
+        async function createBill() {
+            return handlePayment();
+        }
+
         /**
          * Modify showConfirmationModal to handle cart clearing on success
          */
@@ -769,8 +771,8 @@ AXBSSP,AXIA/BEZZA,SPORT SPRING,1SET,4,390
         productTypeSelect.addEventListener('change', renderProducts);
         document.getElementById('cart-button').addEventListener('click', showCartModal);
         document.getElementById('checkout-button').addEventListener('click', showCheckoutModal);
-        // Update the listener to call the new handlePayment function
-        document.getElementById('pay-button').addEventListener('click', handlePayment);
+        // Now call the createBill() wrapper when pay-button is clicked
+        document.getElementById('pay-button').addEventListener('click', createBill);
     </script>
 </body>
 </html>
