@@ -1,124 +1,138 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Proride App</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6;
-            -webkit-tap-highlight-color: transparent; /* Removes tap highlight on iOS */
-        }
-        .modal-content-enter {
-            transform: translateY(100vh);
-        }
-        .modal-content-enter-active {
-            transform: translateY(0);
-            transition: transform 0.3s ease-in-out;
-        }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
+  <title>Proride Parts — Full CSV & Images</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; -webkit-tap-highlight-color: transparent; }
+    .modal-enter { transform: translateY(100vh); }
+    .modal-enter-active { transform: translateY(0); transition: transform 0.28s ease-in-out; }
+    .modal-fade { opacity: 0; transition: opacity 0.18s ease-in-out; }
+    .modal-fade.show { opacity: 1; }
+  </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col items-center p-4">
 
-    <div id="app-container" class="bg-white rounded-3xl shadow-2xl p-6 max-w-lg w-full">
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-3xl font-bold text-gray-800">Proride Parts</h1>
-            <button id="cart-button" class="relative bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full shadow-lg transition duration-300 active:scale-95">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l3 12h11l3-8H7" />
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 21a1 1 0 100-2 1 1 0 000 2zm10 0a1 1 0 100-2 1 1 0 000 2z" />
-                </svg>
-                <span id="cart-item-count" class="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">0</span>
-            </button>
-        </div>
-
-        <div class="mb-6 rounded-xl overflow-hidden shadow-lg">
-            <img id="product-main-image" src="https://placehold.co/800x800/e5e7eb/6b7280?text=Select+Car+Model" alt="Main product image placeholder" class="w-full h-auto object-cover">
-        </div>
-
-        <div class="flex space-x-4 mb-6">
-            <div class="flex-1">
-                <label for="car-model" class="block text-sm font-medium text-gray-700 mb-1">Car Model</label>
-                <select id="car-model" class="w-full p-3 border border-gray-300 bg-white rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 transition duration-150">
-                    </select>
-            </div>
-            <div class="flex-1">
-                <label for="product-type" class="block text-sm font-medium text-gray-700 mb-1">Product Type</label>
-                <select id="product-type" class="w-full p-3 border border-gray-300 bg-white rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 transition duration-150">
-                    </select>
-            </div>
-        </div>
-
-        <div id="product-list">
-            </div>
+  <div id="app-container" class="bg-white rounded-3xl shadow-2xl p-6 max-w-lg w-full">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-3xl font-bold text-gray-800">Proride Parts</h1>
+      <button id="cart-button" class="relative bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full shadow-lg transition duration-300 active:scale-95">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l3 12h11l3-8H7" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 21a1 1 0 100-2 1 1 0 000 2zm10 0a1 1 0 100-2 1 1 0 000 2z" />
+        </svg>
+        <span id="cart-item-count" class="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">0</span>
+      </button>
     </div>
 
-    <div id="cart-modal" class="fixed inset-0 z-50 bg-gray-900 bg-opacity-70 flex items-end hidden">
-        <div class="relative bg-white w-full rounded-t-3xl shadow-2xl p-6 modal-content-enter">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-2xl font-bold text-gray-800">Your Cart</h3>
-                <button onclick="closeCartModal()" class="text-gray-400 hover:text-gray-600 text-2xl font-bold p-2 leading-none rounded-full transition-colors">&times;</button>
-            </div>
-            <div id="cart-items" class="max-h-64 overflow-y-auto mb-6 space-y-2">
-                </div>
-            <div class="flex justify-between items-center text-xl font-bold border-t pt-4">
-                <span>Total:</span>
-                <span id="cart-total">RM 0.00</span>
-            </div>
-            <button id="checkout-button" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 mt-4 rounded-xl transition duration-300 active:scale-98 opacity-50 cursor-not-allowed" disabled>
-                Proceed to Checkout
-            </button>
-        </div>
+    <div class="mb-6 rounded-xl overflow-hidden shadow-lg">
+      <img id="product-main-image" src="https://placehold.co/800x800/e5e7eb/6b7280?text=Select+Car+Model" alt="Main product image placeholder" class="w-full h-auto object-cover">
     </div>
 
-    <div id="checkout-modal" class="fixed inset-0 z-50 bg-gray-900 bg-opacity-70 flex items-end hidden">
-        <div class="relative bg-white w-full rounded-t-3xl shadow-2xl p-6 modal-content-enter">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-2xl font-bold text-gray-800">Checkout</h3>
-                <button onclick="closeCheckoutModal()" class="text-gray-400 hover:text-gray-600 text-2xl font-bold p-2 leading-none rounded-full transition-colors">&times;</button>
-            </div>
-            
-            <div class="mb-6 space-y-3">
-                <h4 class="text-lg font-bold text-gray-800 border-b pb-2">Customer Information</h4>
-                <div>
-                    <label for="name" class="text-sm font-medium text-gray-700 block mb-1">Full Name</label>
-                    <input type="text" id="name" placeholder="Your Name" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
-                </div>
-                <div>
-                    <label for="email" class="text-sm font-medium text-gray-700 block mb-1">Email</label>
-                    <input type="email" id="email" placeholder="you@example.com" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
-                </div>
-                <div>
-                    <label for="phone" class="text-sm font-medium text-gray-700 block mb-1">Phone Number</label>
-                    <input type="tel" id="phone" placeholder="e.g., 60123456789" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
-                </div>
-            </div>
-            <div id="checkout-summary" class="max-h-64 overflow-y-auto mb-6">
-                </div>
-            <button id="pay-button" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-xl transition duration-300 active:scale-98">Proceed to Payment</button>
-        </div>
+    <div class="flex space-x-4 mb-6">
+      <div class="flex-1">
+        <label for="car-model" class="block text-sm font-medium text-gray-700 mb-1">Car Model</label>
+        <select id="car-model" class="w-full p-3 border border-gray-300 bg-white rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 transition duration-150"></select>
+      </div>
+      <div class="flex-1">
+        <label for="product-type" class="block text-sm font-medium text-gray-700 mb-1">Product Type</label>
+        <select id="product-type" class="w-full p-3 border border-gray-300 bg-white rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 transition duration-150"></select>
+      </div>
     </div>
 
-    <div id="confirmation-modal" class="fixed inset-0 z-50 bg-gray-900 bg-opacity-70 flex items-center justify-center hidden">
-        <div class="bg-white rounded-xl shadow-2xl p-8 max-w-sm w-full text-center transform scale-90 transition-transform duration-300">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-green-500 mx-auto mb-4" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-            </svg>
-            <h3 class="text-2xl font-bold text-gray-800 mb-2">Payment Successful!</h3>
-            <p class="text-gray-600 mb-6">Thank you for your order. Your transaction has been completed successfully.</p>
-            <button onclick="closeConfirmationModal()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition duration-300 active:scale-95">
-                Continue Shopping
-            </button>
-        </div>
-    </div>
+    <div id="product-list"></div>
+  </div>
 
-    <script>
-        const rawCsv = `CODE,MODEL,VARIANT,POSITION,QUANTITY,Original Price
+  <!-- Cart Modal -->
+  <div id="cart-modal" class="fixed inset-0 z-50 bg-gray-900 bg-opacity-70 flex items-end hidden">
+    <div id="cart-modal-panel" class="relative bg-white w-full rounded-t-3xl shadow-2xl p-6 modal-enter">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-2xl font-bold text-gray-800">Your Cart</h3>
+        <button id="close-cart" class="text-gray-400 hover:text-gray-600 text-2xl font-bold p-2 leading-none rounded-full transition-colors">&times;</button>
+      </div>
+      <div id="cart-items" class="max-h-64 overflow-y-auto mb-6 space-y-2"></div>
+      <div class="flex justify-between items-center text-xl font-bold border-t pt-4">
+        <span>Total:</span>
+        <span id="cart-total">RM 0.00</span>
+      </div>
+      <button id="checkout-button" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 mt-4 rounded-xl transition duration-300 active:scale-98 opacity-50 cursor-not-allowed" disabled>
+        Proceed to Checkout
+      </button>
+    </div>
+  </div>
+
+  <!-- Checkout Modal -->
+  <div id="checkout-modal" class="fixed inset-0 z-50 bg-gray-900 bg-opacity-70 flex items-end hidden">
+    <div id="checkout-modal-panel" class="relative bg-white w-full rounded-t-3xl shadow-2xl p-6 modal-enter">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-2xl font-bold text-gray-800">Checkout</h3>
+        <button id="close-checkout" class="text-gray-400 hover:text-gray-600 text-2xl font-bold p-2 leading-none rounded-full transition-colors">&times;</button>
+      </div>
+
+      <div class="mb-6 space-y-3">
+        <h4 class="text-lg font-bold text-gray-800 border-b pb-2">Customer Information</h4>
+        <div>
+          <label for="name" class="text-sm font-medium text-gray-700 block mb-1">Full Name</label>
+          <input type="text" id="name" placeholder="Your Name" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+        </div>
+        <div>
+          <label for="email" class="text-sm font-medium text-gray-700 block mb-1">Email</label>
+          <input type="email" id="email" placeholder="you@example.com" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+        </div>
+        <div>
+          <label for="phone" class="text-sm font-medium text-gray-700 block mb-1">Phone Number</label>
+          <input type="tel" id="phone" placeholder="e.g., 60123456789" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+        </div>
+      </div>
+
+      <div id="checkout-summary" class="max-h-64 overflow-y-auto mb-6"></div>
+
+      <button id="pay-button" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-xl transition duration-300 active:scale-98">Proceed to Payment</button>
+    </div>
+  </div>
+
+  <!-- Confirmation Modal -->
+  <div id="confirmation-modal" class="fixed inset-0 z-50 bg-gray-900 bg-opacity-70 flex items-center justify-center hidden">
+    <div class="bg-white rounded-xl shadow-2xl p-8 max-w-sm w-full text-center transform scale-90 transition-transform duration-300">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-green-500 mx-auto mb-4" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+      </svg>
+      <h3 class="text-2xl font-bold text-gray-800 mb-2">Payment Successful</h3>
+      <p class="text-gray-600 mb-6">Thank you for your order. Your transaction has been completed successfully.</p>
+      <button id="close-confirmation" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition duration-300 active:scale-95">Continue Shopping</button>
+    </div>
+  </div>
+
+  <script>
+    // Robust CSV parser
+    function parseCsvRobust(csvText) {
+      const rows = [];
+      let cur = '';
+      let row = [];
+      let inQuotes = false;
+      for (let i = 0; i < csvText.length; i++) {
+        const ch = csvText[i];
+        const next = csvText[i + 1];
+        if (ch === '"' ) {
+          if (inQuotes && next === '"') { cur += '"'; i++; } else { inQuotes = !inQuotes; }
+        } else if (ch === ',' && !inQuotes) {
+          row.push(cur); cur = '';
+        } else if ((ch === '\n' || ch === '\r') && !inQuotes) {
+          if (ch === '\r' && next === '\n') { i++; }
+          row.push(cur); rows.push(row); row = []; cur = '';
+        } else { cur += ch; }
+      }
+      if (cur !== '' || row.length > 0) { row.push(cur); rows.push(row); }
+      return rows.map(r => r.map(f => f.trim()));
+    }
+
+    // Full CSV content (complete)
+    const rawCsv = `CODE,MODEL,VARIANT,POSITION,QUANTITY,Original Price
 SAFST,SAGA/ISWARA,STANDARD,FRONT,2,293.8
 SARST,SAGA/ISWARA,STANDARD,REAR,2,192.4
 SAST,SAGA/ISWARA,STANDARD,1SET,4,473.2
@@ -261,518 +275,452 @@ VISSP,VIVA,SPORT SPRING,1SET,4,377
 AXBSSP,AXIA/BEZZA,SPORT SPRING,1SET,4,390
 `;
 
-        // === START IMAGE MAPPING ===
-        // The keys have been corrected to match the dynamic product names.
-        const productImageMap = {
-            'ALZA-Standard Absorber': 'https://i.ibb.co/STyt25d/ALZA-STD-1-CARSET.jpg',
-            'ALZA-Heavy Duty Absorber': 'https://i.ibb.co/qM50jmzw/ALZA-HDUTY-1-CARSET.jpg',
-            'ALZA-Performance Absorber': 'https://i.ibb.co/35TTn89B/ALZA-PERF-1-CARSET.jpg',
-            'ALZA-Sport Spring': 'https://i.ibb.co/4RFzTCJG/ALZA-SPORT-SPRING-1-CAR-SET.jpg',
-            'MYVI/MYVI BEST-Standard Absorber': 'https://i.ibb.co/ycJnV14W/MYVI-STD-1-CARSET.jpg',
-            'MYVI/MYVI BEST-Heavy Duty Absorber': 'https://i.ibb.co/7JzLrHZf/MYVI-HDUTY-1-CARSET.jpg',
-            'MYVI/MYVI BEST-Performance Absorber': 'https://i.ibb.co/yBmZXB0k/MYVI-PERF-1-CARSET.jpg',
-            'MYVI/MYVI BEST-Sport Spring': 'https://i.ibb.co/4ZXb4VVR/MYVI-SPORT-SPRING-1-CAR-SET.jpg',
-            'SAGA/ISWARA-Standard Absorber': 'https://i.ibb.co/Nn2W5tvk/ISWARA-STD-1-CARSET.jpg',
-            'SAGA/ISWARA-Heavy Duty Absorber': 'https://i.ibb.co/cKbCVd1G/ISWARA-HDUTY-1-CARSET.jpg',
-            'SAGA/ISWARA-Performance Absorber': 'https://i.ibb.co/bjnkR5ZL/ISWARA-PERF-1-CARSET.jpg',
-            'SAGA/ISWARA-Sport Spring': 'https://i.ibb.co/ZRq9Lnpg/ISWARA-SPORT-SPRING-1-CAR-SET.jpg',
-            'WIRA/SATRIA 1.3/1.5-Standard Absorber': 'https://i.ibb.co/QqczrSL/WIRA-STD-1-CARSET.jpg',
-            'WIRA/SATRIA 1.3/1.5-Heavy Duty Absorber': 'https://i.ibb.co/gL9SW9sN/WIRA-HDUTY-1-CARSET.jpg',
-            'WIRA/SATRIA 1.3/1.5-Performance Absorber': 'https://i.ibb.co/VYMqV38L/WIRA-PERF-1-CARSET.jpg',
-            'WIRA/SATRIA 1.3/1.5-Sport Spring': 'https://i.ibb.co/mVkgGwbD/WIRA-SPORT-SPRING-1-CAR-SET.jpg',
-            'WAJA/GEN 2/WIRA 1.6/PERSONA-Standard Absorber': 'https://i.ibb.co/1Y3rH7dp/WAJA-STD-1-CARSET.jpg',
-            'WAJA/GEN 2/WIRA 1.6/PERSONA-Heavy Duty Absorber': 'https://i.ibb.co/xq47Pqdw/WAJA-HDUTY-1-CARSET.jpg',
-            'WAJA/GEN 2/WIRA 1.6/PERSONA-Performance Absorber': 'https://i.ibb.co/NdCH82n7/WAJA-PERF-1-CARSET.jpg',
-            'WAJA/GEN 2/WIRA 1.6/PERSONA-Sport Spring': 'https://i.ibb.co/05WqYSh/WAJA-SPORT-SPRING-1-CAR-SET.jpg',
-            'SAGA BLM/FL/FLX/VVTI-Standard Absorber': 'https://i.ibb.co/LzBXZVSQ/FLX-STD-1-CARSET.jpg',
-            'SAGA BLM/FL/FLX/VVTI-Heavy Duty Absorber': 'https://i.ibb.co/W1CVG8H/FLX-HDUTY-1-CARSET.jpg',
-            'SAGA BLM/FL/FLX/VVTI-Performance Absorber': 'https://i.ibb.co/Mx7CrJDn/FLX-PERF-1-CARSET.jpg',
-            'SAGA BLM/FL/FLX/VVTI-Sport Spring': 'https://i.ibb.co/8g3JkPD1/FLX-SPORT-SPRING-1-CAR-SET.jpg',
-            'PREVE/SUPRIMA S-Standard Absorber': 'https://placehold.co/800x800/a8a29e/292524?text=Preve+Standard+Absorber',
-            'PREVE/SUPRIMA S-Heavy Duty Absorber': 'https://placehold.co/800x800/8c8c8c/ffffff?text=Preve+Heavy+Duty+Absorber',
-            'PREVE/SUPRIMA S-Performance Absorber': 'https://placehold.co/800x800/ff7f50/ffffff?text=Preve+Performance+Absorber',
-            'PREVE/SUPRIMA S-Sport Spring': 'https://placehold.co/800x800/e5e7eb/6b7280?text=Preve+Sport+Spring',
-            'EXORA CPS/CFE-Standard Absorber': 'https://i.ibb.co/spstWc1g/EXORA-STD-1-CARSET.jpg',
-            'EXORA CPS/CFE-Heavy Duty Absorber': 'https://i.ibb.co/ZpGRTVfT/EXORA-HDUTY-1-CARSET.jpg',
-            'EXORA CPS/CFE-Performance Absorber': 'https://i.ibb.co/0jZ92spY/EXORA-PERF-1-CARSET.jpg',
-            'EXORA CPS/CFE-Sport Spring': 'https://i.ibb.co/w9W5N26/EXORA-SPORT-SPRING-1-CAR-SET.jpg',
-            'PROTON IRIZ/PERSONA VVT-Standard Absorber': 'https://placehold.co/800x800/a8a29e/292524?text=Iriz+Standard+Absorber',
-            'PROTON IRIZ/PERSONA VVT-Heavy Duty Absorber': 'https://i.ibb.co/j9smbpk0/IRIZ-HDUTY-1-CARSET.jpg',
-            'PROTON IRIZ/PERSONA VVT-Performance Absorber': 'https://placehold.co/800x800/ff7f50/ffffff?text=Iriz+Performance+Absorber',
-            'PROTON IRIZ/PERSONA VVT-Sport Spring': 'https://i.ibb.co/wrZ8fZjt/IRIZ-SPORT-SPRING-1-CAR-SET.jpg',
-            'KANCIL-Standard Absorber': 'https://i.ibb.co/99t6R4Mx/KANCIL-STD-1-CARSET.jpg',
-            'KANCIL-Heavy Duty Absorber': 'https://i.ibb.co/dJm5xjL5/KANCIL-HDUTY-1-CARSET.jpg',
-            'KANCIL-Performance Absorber': 'https://i.ibb.co/6cxxwJVg/KANCIL-PERF-1-CARSET.jpg',
-            'KANCIL-Sport Spring': 'https://i.ibb.co/qY3Tgfvy/KANCIL-SPORT-SPRING-1-CAR-SET.jpg',
-            'KENARI/KELISA-Standard Absorber': 'https://i.ibb.co/XfJtwkdT/KENARI-STD-1-CARSET.jpg',
-            'KENARI/KELISA-Heavy Duty Absorber': 'https://i.ibb.co/xtV7zJm1/KENARI-HDUTY-1-CARSET.jpg',
-            'KENARI/KELISA-Performance Absorber': 'https://i.ibb.co/XfSyPMB5/KENARI-PERF-1-CARSET.jpg',
-            'KENARI/KELISA-Sport Spring': 'https://i.ibb.co/xqT2RGz2/KENARI-SPORT-SPRING-1-CAR-SET.jpg',
-            'NEW MYVI G3-Standard Absorber': 'https://i.ibb.co/CGwWHFq/MYVI-G3-STD-1-CARSET.jpg',
-            'NEW MYVI G3-Heavy Duty Absorber': 'https://i.ibb.co/Q3q2Dy9h/MYVI-G3-HDUTY-1-CARSET.jpg',
-            'NEW MYVI G3-Performance Absorber': 'https://placehold.co/800x800/ff7f50/ffffff?text=New+Myvi+Performance+Absorber',
-            'NEW MYVI G3-Sport Spring': 'https://i.ibb.co/Jw33d9T6/MYVI-G3-SPORT-SPRING-1-CAR-SET.jpg',
-            'VIVA-Standard Absorber': 'https://i.ibb.co/k2PfFyXQ/VIVA-STD-1-CARSET.jpg',
-            'VIVA-Heavy Duty Absorber': 'https://i.ibb.co/MDppr1gW/VIVA-HDUTY-1-CARSET.jpg',
-            'VIVA-Performance Absorber': 'https://i.ibb.co/Kp5f9YcQ/VIVA-PERF-1-CARSET.jpg',
-            'VIVA-Sport Spring': 'https://i.ibb.co/b5FT2j8R/VIVA-SPORT-SPRING-1-CAR-SET.jpg',
-            'AXIA/BEZZA-Standard Absorber': 'https://i.ibb.co/hRk8XsWD/AXIA-STD-1-CARSET.jpg',
-            'AXIA/BEZZA-Heavy Duty Absorber': 'https://i.ibb.co/KxjjVCLD/AXIA-HDUTY-1-CARSET.jpg',
-            'AXIA/BEZZA-Performance Absorber': 'https://i.ibb.co/YYXpHbb/AXIA-PERF-1-CARSET.jpg',
-            'AXIA/BEZZA-Sport Spring': 'https://i.ibb.co/xShJSs32/AXIA-SPORT-SPRING-1-CAR-SET.jpg',
-        };
-        // === END IMAGE MAPPING ===
+    // Full image map raw (keys normalized later)
+    const productImageMapRaw = {
+      'ALZA-Standard Absorber': 'https://i.ibb.co/STyt25d/ALZA-STD-1-CARSET.jpg',
+      'ALZA-Heavy Duty Absorber': 'https://i.ibb.co/qM50jmzw/ALZA-HDUTY-1-CARSET.jpg',
+      'ALZA-Performance Absorber': 'https://i.ibb.co/35TTn89B/ALZA-PERF-1-CARSET.jpg',
+      'ALZA-Sport Spring': 'https://i.ibb.co/4RFzTCJG/ALZA-SPORT-SPRING-1-CAR-SET.jpg',
 
-        const parseProductsFromCsv = (csv) => {
-            const lines = csv.split('\n').filter(line => line.trim() !== '');
-            const products = [];
-            const uniqueModels = new Set();
-            const modelProductTypes = {};
-            
-            const carModelMapping = {
-                'SAGA/ISWARA': 'Proton',
-                'WIRA/SATRIA 1.3/1.5': 'Proton',
-                'WAJA/GEN 2/WIRA 1.6/PERSONA': 'Proton',
-                'SAGA BLM/FL/FLX/VVTI': 'Proton',
-                'PREVE/SUPRIMA S': 'Proton',
-                'EXORA CPS/CFE': 'Proton',
-                'PROTON IRIZ/PERSONA VVT': 'Proton',
-                'KANCIL': 'Perodua',
-                'KENARI/KELISA': 'Perodua',
-                'MYVI/MYVI BEST': 'Perodua',
-                'NEW MYVI G3': 'Perodua',
-                'ALZA': 'Perodua',
-                'VIVA': 'Perodua',
-                'AXIA/BEZZA': 'Perodua',
-             };
+      'MYVI/MYVI BEST-Standard Absorber': 'https://i.ibb.co/ycJnV14W/MYVI-STD-1-CARSET.jpg',
+      'MYVI/MYVI BEST-Heavy Duty Absorber': 'https://i.ibb.co/7JzLrHZf/MYVI-HDUTY-1-CARSET.jpg',
+      'MYVI/MYVI BEST-Performance Absorber': 'https://i.ibb.co/yBmZXB0k/MYVI-PERF-1-CARSET.jpg',
+      'MYVI/MYVI BEST-Sport Spring': 'https://i.ibb.co/4ZXb4VVR/MYVI-SPORT-SPRING-1-CAR-SET.jpg',
 
-            for (let i = 1; i < lines.length; i++) {
-                const values = lines[i].split(',').map(value => value.trim());
+      'SAGA/ISWARA-Standard Absorber': 'https://i.ibb.co/Nn2W5tvk/ISWARA-STD-1-CARSET.jpg',
+      'SAGA/ISWARA-Heavy Duty Absorber': 'https://i.ibb.co/cKbCVd1G/ISWARA-HDUTY-1-CARSET.jpg',
+      'SAGA/ISWARA-Performance Absorber': 'https://i.ibb.co/bjnkR5ZL/ISWARA-PERF-1-CARSET.jpg',
+      'SAGA/ISWARA-Sport Spring': 'https://i.ibb.co/ZRq9Lnpg/ISWARA-SPORT-SPRING-1-CAR-SET.jpg',
 
-                if (values.length < 6) continue;
+      'WIRA/SATRIA 1.3/1.5-Standard Absorber': 'https://i.ibb.co/QqczrSL/WIRA-STD-1-CARSET.jpg',
+      'WIRA/SATRIA 1.3/1.5-Heavy Duty Absorber': 'https://i.ibb.co/gL9SW9sN/WIRA-HDUTY-1-CARSET.jpg',
+      'WIRA/SATRIA 1.3/1.5-Performance Absorber': 'https://i.ibb.co/VYMqV38L/WIRA-PERF-1-CARSET.jpg',
+      'WIRA/SATRIA 1.3/1.5-Sport Spring': 'https://i.ibb.co/mVkgGwbD/WIRA-SPORT-SPRING-1-CAR-SET.jpg',
 
-                const code = values[0];
-                const rawModelName = values[1].trim();
-                const modelName = rawModelName.replace(/\s+/g, ' ').toUpperCase();
-                const rawVariant = values[2].trim().toUpperCase();
-                const position = values[3].trim().toUpperCase();
-                const quantity = parseInt(values[4], 10);
-                const onlinePrice = parseFloat(values.length > 6 ? values[6] : values[5]);
-                
-                const manufacturer = carModelMapping[modelName];
-                if (!manufacturer || (manufacturer !== 'Proton' && manufacturer !== 'Perodua')) {
-                    continue;
-                }
+      'WAJA/GEN 2/WIRA 1.6/PERSONA-Standard Absorber': 'https://i.ibb.co/1Y3rH7dp/WAJA-STD-1-CARSET.jpg',
+      'WAJA/GEN 2/WIRA 1.6/PERSONA-Heavy Duty Absorber': 'https://i.ibb.co/xq47Pqdw/WAJA-HDUTY-1-CARSET.jpg',
+      'WAJA/GEN 2/WIRA 1.6/PERSONA-Performance Absorber': 'https://i.ibb.co/NdCH82n7/WAJA-PERF-1-CARSET.jpg',
+      'WAJA/GEN 2/WIRA 1.6/PERSONA-Sport Spring': 'https://i.ibb.co/05WqYSh/WAJA-SPORT-SPRING-1-CAR-SET.jpg',
 
-                let productType = '';
-                if (rawVariant.includes('STANDARD')) {
-                    productType = 'Standard Absorber';
-                } else if (rawVariant.includes('HEAVY DUTY')) {
-                    productType = 'Heavy Duty Absorber';
-                } else if (rawVariant.includes('PERFORMANCE')) {
-                    productType = 'Performance Absorber';
-                } else if (rawVariant.includes('SPORT')) {
-                    productType = 'Sport Spring';
-                } else {
-                    continue;
-                }
-                
-                products.push({
-                    id: code,
-                    model: modelName,
-                    type: productType,
-                    position: position,
-                    quantity: quantity,
-                    price: onlinePrice,
-                    image: productImageMap[`${modelName}-${productType}`],
-                    imageAlt: `${modelName} ${productType}`,
-                });
-                
-                uniqueModels.add(modelName);
-                if (!modelProductTypes[modelName]) {
-                    modelProductTypes[modelName] = new Set();
-                }
-                modelProductTypes[modelName].add(productType);
-            }
+      'SAGA BLM/FL/FLX/VVTI-Standard Absorber': 'https://i.ibb.co/LzBXZVSQ/FLX-STD-1-CARSET.jpg',
+      'SAGA BLM/FL/FLX/VVTI-Heavy Duty Absorber': 'https://i.ibb.co/W1CVG8H/FLX-HDUTY-1-CARSET.jpg',
+      'SAGA BLM/FL/FLX/VVTI-Performance Absorber': 'https://i.ibb.co/Mx7CrJDn/FLX-PERF-1-CARSET.jpg',
+      'SAGA BLM/FL/FLX/VVTI-Sport Spring': 'https://i.ibb.co/8g3JkPD1/FLX-SPORT-SPRING-1-CAR-SET.jpg',
 
-            const uniqueModelsArray = Array.from(uniqueModels);
-            const modelProductTypesArray = {};
-            for (const model in modelProductTypes) {
-                modelProductTypesArray[model] = Array.from(modelProductTypes[model]);
-            }
-            
-            return { products, uniqueModels: uniqueModelsArray, modelProductTypes: modelProductTypesArray };
-        };
+      'PREVE/SUPRIMA S-Standard Absorber': 'https://placehold.co/800x800/a8a29e/292524?text=Preve+Standard+Absorber',
+      'PREVE/SUPRIMA S-Heavy Duty Absorber': 'https://placehold.co/800x800/8c8c8c/ffffff?text=Preve+Heavy+Duty+Absorber',
+      'PREVE/SUPRIMA S-Performance Absorber': 'https://placehold.co/800x800/ff7f50/ffffff?text=Preve+Performance+Absorber',
+      'PREVE/SUPRIMA S-Sport Spring': 'https://placehold.co/800x800/e5e7eb/6b7280?text=Preve+Sport+Spring',
 
-        const { products, uniqueModels, modelProductTypes } = parseProductsFromCsv(rawCsv);
-        let cart = [];
-        const productListEl = document.getElementById('product-list');
-        const cartItemsEl = document.getElementById('cart-items');
-        const cartTotalEl = document.getElementById('cart-total');
-        const cartItemCountEl = document.getElementById('cart-item-count');
-        const cartModal = document.getElementById('cart-modal');
-        const checkoutModal = document.getElementById('checkout-modal');
-        const confirmationModal = document.getElementById('confirmation-modal');
-        const checkoutSummaryEl = document.getElementById('checkout-summary');
-        const carModelSelect = document.getElementById('car-model');
-        const productTypeSelect = document.getElementById('product-type');
-        const productMainImageEl = document.getElementById('product-main-image');
+      'EXORA CPS/CFE-Standard Absorber': 'https://i.ibb.co/spstWc1g/EXORA-STD-1-CARSET.jpg',
+      'EXORA CPS/CFE-Heavy Duty Absorber': 'https://i.ibb.co/ZpGRTVfT/EXORA-HDUTY-1-CARSET.jpg',
+      'EXORA CPS/CFE-Performance Absorber': 'https://i.ibb.co/0jZ92spY/EXORA-PERF-1-CARSET.jpg',
+      'EXORA CPS/CFE-Sport Spring': 'https://i.ibb.co/w9W5N26/EXORA-SPORT-SPRING-1-CAR-SET.jpg',
 
-        const productTypeOrder = ['Standard Absorber', 'Heavy Duty Absorber', 'Performance Absorber', 'Sport Spring'];
+      'PROTON IRIZ/PERSONA VVT-Standard Absorber': 'https://placehold.co/800x800/a8a29e/292524?text=Iriz+Standard+Absorber',
+      'PROTON IRIZ/PERSONA VVT-Heavy Duty Absorber': 'https://i.ibb.co/j9smbpk0/IRIZ-HDUTY-1-CARSET.jpg',
+      'PROTON IRIZ/PERSONA VVT-Performance Absorber': 'https://placehold.co/800x800/ff7f50/ffffff?text=Iriz+Performance+Absorber',
+      'PROTON IRIZ/PERSONA VVT-Sport Spring': 'https://i.ibb.co/wrZ8fZjt/IRIZ-SPORT-SPRING-1-CAR-SET.jpg',
 
-        function populateDropdowns() {
-            carModelSelect.innerHTML = uniqueModels.sort().map(model => `<option value="${model}">${model}</option>`).join('');
-            updateProductTypeDropdown();
-        }
+      'KANCIL-Standard Absorber': 'https://i.ibb.co/99t6R4Mx/KANCIL-STD-1-CARSET.jpg',
+      'KANCIL-Heavy Duty Absorber': 'https://i.ibb.co/dJm5xjL5/KANCIL-HDUTY-1-CARSET.jpg',
+      'KANCIL-Performance Absorber': 'https://i.ibb.co/6cxxwJVg/KANCIL-PERF-1-CARSET.jpg',
+      'KANCIL-Sport Spring': 'https://i.ibb.co/qY3Tgfvy/KANCIL-SPORT-SPRING-1-CAR-SET.jpg',
 
-        function updateProductTypeDropdown() {
-            const selectedModel = carModelSelect.value;
-            const typesForModel = modelProductTypes[selectedModel] || [];
-            
-            const orderedTypes = productTypeOrder.filter(type => typesForModel.includes(type));
-            
-            productTypeSelect.innerHTML = orderedTypes.map(type => `<option value="${type}">${type.toUpperCase()}</option>`).join('');
-            renderProducts();
-        }
+      'KENARI/KELISA-Standard Absorber': 'https://i.ibb.co/XfJtwkdT/KENARI-STD-1-CARSET.jpg',
+      'KENARI/KELISA-Heavy Duty Absorber': 'https://i.ibb.co/xtV7zJm1/KENARI-HDUTY-1-CARSET.jpg',
+      'KENARI/KELISA-Performance Absorber': 'https://i.ibb.co/XfSyPMB5/KENARI-PERF-1-CARSET.jpg',
+      'KENARI/KELISA-Sport Spring': 'https://i.ibb.co/xqT2RGz2/KENARI-SPORT-SPRING-1-CAR-SET.jpg',
 
-        function renderProducts() {
-            const selectedModel = carModelSelect.value;
-            const selectedType = productTypeSelect.value;
-            
-            const imageKey = `${selectedModel}-${selectedType}`;
-            const imageUrl = productImageMap[imageKey];
+      'NEW MYVI G3-Standard Absorber': 'https://i.ibb.co/CGwWHFq/MYVI-G3-STD-1-CARSET.jpg',
+      'NEW MYVI G3-Heavy Duty Absorber': 'https://i.ibb.co/Q3q2Dy9h/MYVI-G3-HDUTY-1-CARSET.jpg',
+      'NEW MYVI G3-Performance Absorber': 'https://placehold.co/800x800/ff7f50/ffffff?text=New+Myvi+Performance+Absorber',
+      'NEW MYVI G3-Sport Spring': 'https://i.ibb.co/Jw33d9T6/MYVI-G3-SPORT-SPRING-1-CAR-SET.jpg',
 
-            console.log(`Attempting to load image for: ${imageKey}. URL: ${imageUrl}`);
-            
-            if (imageUrl) {
-                productMainImageEl.src = imageUrl;
-                productMainImageEl.alt = `${selectedModel} ${selectedType}`;
-            } else {
-                // If there's no URL in the map, use the default placeholder
-                productMainImageEl.src = 'https://placehold.co/800x800/e5e7eb/6b7280?text=No+product+image+available';
-                productMainImageEl.alt = 'No product image available';
-            }
-            
-            const filteredProducts = products.filter(product =>
-                product.model === selectedModel && product.type === selectedType
-            );
-            
-            productListEl.innerHTML = '';
-            if (filteredProducts.length === 0) {
-                 productListEl.innerHTML = '<p class="text-gray-500 text-center py-4">No products found for this selection.</p>';
-            } else {
-                const productCardContent = `
-                    <div class="bg-gray-50 rounded-xl shadow-md overflow-hidden p-4 flex flex-col items-center text-center">
-                        <h4 class="font-bold text-lg text-gray-800">${(filteredProducts[0].model + ' ' + filteredProducts[0].type).toUpperCase()}</h4>
-                        <div class="mt-4 w-full flex flex-col gap-2">
-                            ${filteredProducts.map(product => `
-                                <div class="flex justify-between items-center bg-white rounded-lg p-3 shadow-sm border border-gray-100">
-                                    <div class="flex flex-col text-left">
-                                        <span class="font-medium text-gray-800">${product.position} (${product.quantity} pcs)</span>
-                                        <span class="text-blue-600 font-bold text-xl">RM ${product.price.toFixed(2)}</span>
-                                    </div>
-                                    <button onclick="addToCart('${product.id}')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300 active:scale-95">
-                                        Add to Cart
-                                    </button>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                `;
-                productListEl.innerHTML = productCardContent;
-            }
-        }
+      'VIVA-Standard Absorber': 'https://i.ibb.co/k2PfFyXQ/VIVA-STD-1-CARSET.jpg',
+      'VIVA-Heavy Duty Absorber': 'https://i.ibb.co/MDppr1gW/VIVA-HDUTY-1-CARSET.jpg',
+      'VIVA-Performance Absorber': 'https://i.ibb.co/Kp5f9YcQ/VIVA-PERF-1-CARSET.jpg',
+      'VIVA-Sport Spring': 'https://i.ibb.co/b5FT2j8R/VIVA-SPORT-SPRING-1-CAR-SET.jpg',
 
-        function addToCart(productId) {
-            const product = products.find(p => p.id === productId);
-            if (product) {
-                const itemName = `${product.model} ${product.type} (${product.position} ${product.quantity} pcs)`;
-                const existingItem = cart.find(item => item.id === productId);
+      'AXIA/BEZZA-Standard Absorber': 'https://i.ibb.co/hRk8XsWD/AXIA-STD-1-CARSET.jpg',
+      'AXIA/BEZZA-Heavy Duty Absorber': 'https://i.ibb.co/KxjjVCLD/AXIA-HDUTY-1-CARSET.jpg',
+      'AXIA/BEZZA-Performance Absorber': 'https://i.ibb.co/YYXpHbb/AXIA-PERF-1-CARSET.jpg',
+      'AXIA/BEZZA-Sport Spring': 'https://i.ibb.co/xShJSs32/AXIA-SPORT-SPRING-1-CAR-SET.jpg'
+    };
 
-                if (existingItem) {
-                    existingItem.quantity++;
-                } else {
-                    cart.push({ ...product, name: itemName, quantity: 1 });
-                }
-                updateCartUI();
-            }
-        }
+    // Normalize image map keys to uppercase trimmed
+    const productImageMap = {};
+    Object.keys(productImageMapRaw).forEach(k => {
+      const normalized = k.trim().toUpperCase().replace(/\s+/g, ' ');
+      productImageMap[normalized] = productImageMapRaw[k];
+    });
 
-        function updateCartUI() {
-            cartItemsEl.innerHTML = '';
-            let total = 0;
-            let totalItems = 0;
+    // Parse CSV into products
+    function parseProductsFromCsv(csvText) {
+      const rows = parseCsvRobust(csvText);
+      if (rows.length < 2) return { products: [], uniqueModels: [], modelProductTypes: {} };
+      const header = rows[0].map(h => h.toUpperCase());
+      const idx = {
+        CODE: header.indexOf('CODE'),
+        MODEL: header.indexOf('MODEL'),
+        VARIANT: header.indexOf('VARIANT'),
+        POSITION: header.indexOf('POSITION'),
+        QUANTITY: header.indexOf('QUANTITY'),
+        PRICE: header.indexOf('ORIGINAL PRICE') >= 0 ? header.indexOf('ORIGINAL PRICE') : header.indexOf('PRICE') >= 0 ? header.indexOf('PRICE') : header.length - 1
+      };
 
-            if (cart.length === 0) {
-                cartItemsEl.innerHTML = '<p class="text-gray-500 text-center py-4">Your cart is empty.</p>';
-                document.getElementById('checkout-button').disabled = true;
-                document.getElementById('checkout-button').classList.add('opacity-50', 'cursor-not-allowed');
-            } else {
-                document.getElementById('checkout-button').disabled = false;
-                document.getElementById('checkout-button').classList.remove('opacity-50', 'cursor-not-allowed');
+      const carModelMapping = {
+        'SAGA/ISWARA': 'Proton',
+        'WIRA/SATRIA 1.3/1.5': 'Proton',
+        'WAJA/GEN 2/WIRA 1.6/PERSONA': 'Proton',
+        'SAGA BLM/FL/FLX/VVTI': 'Proton',
+        'PREVE/SUPRIMA S': 'Proton',
+        'EXORA CPS/CFE': 'Proton',
+        'PROTON IRIZ/PERSONA VVT': 'Proton',
+        'KANCIL': 'Perodua',
+        'KENARI/KELISA': 'Perodua',
+        'MYVI/MYVI BEST': 'Perodua',
+        'NEW MYVI G3': 'Perodua',
+        'ALZA': 'Perodua',
+        'VIVA': 'Perodua',
+        'AXIA/BEZZA': 'Perodua'
+      };
 
-                cart.forEach(item => {
-                    total += item.price * item.quantity;
-                    totalItems += item.quantity;
-                    const cartItemEl = `
-                        <div class="flex justify-between items-center py-2 border-b last:border-b-0">
-                            <div>
-                                <h4 class="font-medium text-gray-800">${item.name}</h4>
-                                <p class="text-sm text-gray-500">RM ${item.price.toFixed(2)} x ${item.quantity}</p>
-                            </div>
-                            <button onclick="removeFromCart('${item.id}')" class="text-red-500 hover:text-red-700 text-lg">&times;</button>
-                        </div>
-                    `;
-                    cartItemsEl.innerHTML += cartItemEl;
-                });
-            }
+      const products = [];
+      const uniqueModels = new Set();
+      const modelProductTypes = {};
 
-            cartTotalEl.textContent = `RM ${total.toFixed(2)}`;
-            cartItemCountEl.textContent = totalItems;
-        }
+      for (let r = 1; r < rows.length; r++) {
+        const row = rows[r];
+        if (!row || row.length === 0) continue;
+        const code = row[idx.CODE] || '';
+        const rawModel = (row[idx.MODEL] || '').replace(/\s+/g, ' ').trim();
+        const model = rawModel.toUpperCase();
+        const rawVariant = (row[idx.VARIANT] || '').toUpperCase();
+        const position = (row[idx.POSITION] || '').toUpperCase();
+        const pcsPerSet = parseInt(row[idx.QUANTITY] || '1', 10) || 1;
+        const price = parseFloat(row[idx.PRICE] || '0') || 0;
 
-        function removeFromCart(productId) {
-            cart = cart.filter(item => item.id !== productId);
-            updateCartUI();
-        }
+        const manufacturer = carModelMapping[model];
+        if (!manufacturer) continue;
 
-        function getCheapestCourier() {
-            const couriers = [
-                { name: 'J&T Express', price: 15.00 },
-                { name: 'SPX Express', price: 12.00 },
-                { name: 'Citylink Express', price: 18.00 }
-            ];
-            
-            return couriers.sort((a, b) => a.price - b.price)[0];
-        }
+        let productType = '';
+        if (rawVariant.includes('STANDARD')) productType = 'Standard Absorber';
+        else if (rawVariant.includes('HEAVY DUTY')) productType = 'Heavy Duty Absorber';
+        else if (rawVariant.includes('PERFORMANCE')) productType = 'Performance Absorber';
+        else if (rawVariant.includes('SPORT')) productType = 'Sport Spring';
+        else continue;
 
-        function showCartModal() {
-            updateCartUI();
-            cartModal.classList.remove('hidden');
-            setTimeout(() => {
-                cartModal.querySelector('div').classList.remove('modal-content-enter');
-            }, 10);
-        }
+        const imageKey = `${model}-${productType}`.trim().toUpperCase().replace(/\s+/g, ' ');
+        const image = productImageMap[imageKey] || 'https://placehold.co/800x800/e5e7eb/6b7280?text=No+product+image+available';
 
-        function closeCartModal() {
-            cartModal.querySelector('div').classList.add('modal-content-enter');
-            setTimeout(() => {
-                cartModal.classList.add('hidden');
-            }, 300);
-        }
-        
-        function showCheckoutModal() {
-            closeCartModal();
-            const courier = getCheapestCourier();
-            const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-            const grandTotal = total + courier.price;
-            
-            // Set default values from a mock for testing purposes if fields are empty
-            document.getElementById('name').value = 'Test Customer';
-            document.getElementById('email').value = 'test@example.com';
-            document.getElementById('phone').value = '60123456789';
+        const product = { id: code, model, type: productType, position, pcsPerSet, price, image, imageAlt: `${model} ${productType}` };
+        products.push(product);
+        uniqueModels.add(model);
+        modelProductTypes[model] = modelProductTypes[model] || new Set();
+        modelProductTypes[model].add(productType);
+      }
 
+      const modelProductTypesArray = {};
+      for (const m of Object.keys(modelProductTypes)) modelProductTypesArray[m] = Array.from(modelProductTypes[m]);
+      return { products, uniqueModels: Array.from(uniqueModels).sort(), modelProductTypes: modelProductTypesArray };
+    }
 
-            checkoutSummaryEl.innerHTML = `
-                <div class="space-y-4">
-                    <h4 class="text-lg font-bold">Order Details</h4>
-                    ${cart.map(item => `
-                        <div class="flex justify-between items-center text-gray-700">
-                            <span class="font-medium">${item.name} (x${item.quantity})</span>
-                            <span class="font-semibold text-gray-800">RM ${(item.price * item.quantity).toFixed(2)}</span>
-                        </div>
-                    `).join('')}
-                    <div class="border-t pt-4 mt-4">
-                        <div class="flex justify-between font-medium text-gray-700">
-                            <span>Subtotal</span>
-                            <span>RM ${total.toFixed(2)}</span>
-                        </div>
-                        <div class="flex justify-between font-medium text-blue-600">
-                            <span>Courier Fee (${courier.name})</span>
-                            <span>RM ${courier.price.toFixed(2)}</span>
-                        </div>
-                        <div class="flex justify-between font-bold text-xl text-green-600 mt-2">
-                            <span>Grand Total</span>
-                            <span>RM ${grandTotal.toFixed(2)}</span>
-                        </div>
-                    </div>
+    const { products, uniqueModels, modelProductTypes } = parseProductsFromCsv(rawCsv);
+
+    // UI elements
+    const productListEl = document.getElementById('product-list');
+    const cartItemsEl = document.getElementById('cart-items');
+    const cartTotalEl = document.getElementById('cart-total');
+    const cartItemCountEl = document.getElementById('cart-item-count');
+    const cartModal = document.getElementById('cart-modal');
+    const cartModalPanel = document.getElementById('cart-modal-panel');
+    const checkoutModal = document.getElementById('checkout-modal');
+    const checkoutModalPanel = document.getElementById('checkout-modal-panel');
+    const confirmationModal = document.getElementById('confirmation-modal');
+    const checkoutSummaryEl = document.getElementById('checkout-summary');
+    const carModelSelect = document.getElementById('car-model');
+    const productTypeSelect = document.getElementById('product-type');
+    const productMainImageEl = document.getElementById('product-main-image');
+
+    let cart = [];
+    const productTypeOrder = ['Standard Absorber', 'Heavy Duty Absorber', 'Performance Absorber', 'Sport Spring'];
+
+    function populateDropdowns() {
+      carModelSelect.innerHTML = uniqueModels.map(m => `<option value="${m}">${m}</option>`).join('');
+      updateProductTypeDropdown();
+    }
+
+    function updateProductTypeDropdown() {
+      const selectedModel = carModelSelect.value;
+      const typesForModel = modelProductTypes[selectedModel] || [];
+      const orderedTypes = productTypeOrder.filter(t => typesForModel.includes(t));
+      productTypeSelect.innerHTML = orderedTypes.map(t => `<option value="${t}">${t.toUpperCase()}</option>`).join('');
+      renderProducts();
+    }
+
+    function renderProducts() {
+      const selectedModel = carModelSelect.value;
+      const selectedType = productTypeSelect.value;
+      const imageKey = `${selectedModel}-${selectedType}`.trim().toUpperCase().replace(/\s+/g, ' ');
+      const imageUrl = productImageMap[imageKey] || 'https://placehold.co/800x800/e5e7eb/6b7280?text=No+product+image+available';
+      productMainImageEl.src = imageUrl;
+      productMainImageEl.alt = `${selectedModel} ${selectedType}`;
+
+      const filtered = products.filter(p => p.model === selectedModel && p.type === selectedType);
+      if (filtered.length === 0) {
+        productListEl.innerHTML = '<p class="text-gray-500 text-center py-4">No products found for this selection.</p>';
+        return;
+      }
+
+      const productCardContent = `
+        <div class="bg-gray-50 rounded-xl shadow-md overflow-hidden p-4 flex flex-col items-center text-center">
+          <h4 class="font-bold text-lg text-gray-800">${(filtered[0].model + ' ' + filtered[0].type).toUpperCase()}</h4>
+          <div class="mt-4 w-full flex flex-col gap-2">
+            ${filtered.map(product => `
+              <div class="flex justify-between items-center bg-white rounded-lg p-3 shadow-sm border border-gray-100">
+                <div class="flex flex-col text-left">
+                  <span class="font-medium text-gray-800">${product.position} (${product.pcsPerSet} pcs/set)</span>
+                  <span class="text-blue-600 font-bold text-xl">RM ${product.price.toFixed(2)}</span>
                 </div>
-            `;
-            
-            checkoutModal.classList.remove('hidden');
-            setTimeout(() => {
-                checkoutModal.querySelector('div').classList.remove('modal-content-enter');
-            }, 10);
-        }
+                <div class="flex items-center gap-2">
+                  <button onclick="decreaseCartQuantity('${product.id}')" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-3 rounded-lg">-</button>
+                  <span id="qty-${product.id}" class="w-8 text-center">${getCartQuantity(product.id)}</span>
+                  <button onclick="increaseCartQuantity('${product.id}')" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-3 rounded-lg">+</button>
+                  <button onclick="addToCart('${product.id}')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300 active:scale-95">Add</button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+      productListEl.innerHTML = productCardContent;
+    }
 
-        function closeCheckoutModal() {
-            checkoutModal.querySelector('div').classList.add('modal-content-enter');
-            setTimeout(() => {
-                checkoutModal.classList.add('hidden');
-            }, 300);
-        }
+    function getCartQuantity(productId) {
+      const item = cart.find(i => i.id === productId);
+      return item ? item.cartQuantity : 0;
+    }
 
-        /**
-         * toyyibPay API Integration Logic (LIVE)
-         */
-        
-        // --- ToyyibPay Integration Constants (LIVE) ---
-        const LIVE_SECRET_KEY = 'je9pswn4-zt85-qxwr-dbqp-3cudtnwy29zg'; // LIVE Secret Key (inserted as requested)
-        const LIVE_CATEGORY_CODE = '9dkabvdb'; // LIVE Category Code
-        const LIVE_API_URL = 'https://toyyibpay.com/index.php/api/createBill';
-        const LIVE_PAYMENT_URL = 'https://toyyibpay.com/';
-        
-        // Live return URL
-        const RETURN_URL = 'https://proridemalaysia.github.io/prorideMY/'; 
+    function addToCart(productId) {
+      const product = products.find(p => p.id === productId);
+      if (!product) return;
+      const existing = cart.find(i => i.id === productId);
+      if (existing) existing.cartQuantity += 1;
+      else cart.push({ ...product, cartQuantity: 1 });
+      updateCartUI();
+      const qtyEl = document.getElementById(`qty-${productId}`);
+      if (qtyEl) qtyEl.textContent = getCartQuantity(productId);
+    }
 
-        // The existing handlePayment function is preserved and used. We'll create createBill() wrapper below.
-        async function handlePayment() {
-            const customerName = document.getElementById('name').value;
-            const customerEmail = document.getElementById('email').value;
-            const customerPhone = document.getElementById('phone').value;
+    function increaseCartQuantity(productId) {
+      const existing = cart.find(i => i.id === productId);
+      if (existing) { existing.cartQuantity += 1; updateCartUI(); const qtyEl = document.getElementById(`qty-${productId}`); if (qtyEl) qtyEl.textContent = existing.cartQuantity; }
+      else addToCart(productId);
+    }
 
-            // Basic validation for required fields
-            if (!customerName || !customerEmail || !customerPhone) {
-                alert('Please fill in your name, email, and phone number to proceed with payment.');
-                return;
-            }
-            
-            if (cart.length === 0) {
-                alert('Your cart is empty. Please add items before proceeding to payment.');
-                return;
-            }
+    function decreaseCartQuantity(productId) {
+      const existing = cart.find(i => i.id === productId);
+      if (!existing) return;
+      existing.cartQuantity = Math.max(0, existing.cartQuantity - 1);
+      if (existing.cartQuantity === 0) cart = cart.filter(i => i.id !== productId);
+      updateCartUI();
+      const qtyEl = document.getElementById(`qty-${productId}`);
+      if (qtyEl) qtyEl.textContent = getCartQuantity(productId);
+    }
 
-            const courier = getCheapestCourier();
-            const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-            const grandTotal = subtotal + courier.price;
-            
-            // toyyibPay amount must be in CENTS/SEN (integer)
-            const amountInSen = Math.round(grandTotal * 100); 
-            const orderId = 'PR' + new Date().getTime(); // Unique external reference number
-            
-            // Safety check for amount
-            if (amountInSen <= 0) {
-                alert('Payment amount is zero or negative. Please check your cart.');
-                return;
-            }
+    function removeCartItem(productId) {
+      cart = cart.filter(i => i.id !== productId);
+      updateCartUI();
+    }
 
-            const billData = new URLSearchParams();
-            billData.append('userSecretKey', LIVE_SECRET_KEY);
-            billData.append('categoryCode', LIVE_CATEGORY_CODE);
-            billData.append('billName', 'Proride App Order');
-            billData.append('billDescription', `Order: ${cart.length} item(s). Shipping via ${courier.name}.`);
-            billData.append('billAmount', amountInSen); // Amount in sen
-            billData.append('billPriceSetting', '1'); 
-            // Redirect URLs will pass a 'status' parameter to your RETURN_URL
-            billData.append('billReturnUrl', `${RETURN_URL}?status=success`); 
-            billData.append('billUnpaidUrl', `${RETURN_URL}?status=unsuccessful`); 
-            billData.append('billTo', customerName);
-            billData.append('billEmail', customerEmail);
-            billData.append('billPhone', customerPhone);
-            billData.append('billPaymentChannel', '3'); // '3' is for All Channels (FPX and Card)
-            billData.append('billExternalReferenceNo', orderId);
+    function updateCartUI() {
+      cartItemsEl.innerHTML = '';
+      let total = 0;
+      let totalItems = 0;
 
-            document.getElementById('pay-button').textContent = 'Processing...';
-            document.getElementById('pay-button').disabled = true;
+      if (cart.length === 0) {
+        cartItemsEl.innerHTML = '<p class="text-gray-500 text-center py-4">Your cart is empty.</p>';
+        document.getElementById('checkout-button').disabled = true;
+        document.getElementById('checkout-button').classList.add('opacity-50', 'cursor-not-allowed');
+      } else {
+        document.getElementById('checkout-button').disabled = false;
+        document.getElementById('checkout-button').classList.remove('opacity-50', 'cursor-not-allowed');
 
-            // --- DEBUGGING LOG ---
-            console.log('ToyyibPay Request Payload (URL-encoded):', billData.toString());
-            // ---------------------
-
-            try {
-                // 1. Call the toyyibPay API to generate the Bill Code (LIVE endpoint)
-                const response = await fetch(LIVE_API_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: billData.toString()
-                });
-                
-                const responseData = await response.json();
-
-                // --- DEBUGGING LOG ---
-                console.log('ToyyibPay API Raw Response (LIVE):', responseData);
-                // ---------------------
-
-                document.getElementById('pay-button').textContent = 'Proceed to Payment';
-                document.getElementById('pay-button').disabled = false;
-
-                if (responseData && responseData[0] && responseData[0].BillCode) {
-                    const billCode = responseData[0].BillCode;
-                    closeCheckoutModal(); // Close your local modal
-                    
-                    // 2. Redirect customer to the toyyibPay payment page (LIVE)
-                    window.location.href = `${LIVE_PAYMENT_URL}${billCode}`; 
-                } else {
-                    // Error response from API (e.g., {"msg":"Invalid API Key/Secret Key"})
-                    console.error('ToyyibPay API Error (Response Data):', responseData);
-                    alert('Failed to generate payment link. Please check the console for details and ensure your Secret Key/Category Code are correct.');
-                }
-
-            } catch (error) {
-                document.getElementById('pay-button').textContent = 'Proceed to Payment';
-                document.getElementById('pay-button').disabled = false;
-                console.error('Network Error during ToyyibPay API call (LIVE):', error);
-                alert('Could not connect to the payment gateway API. Check your network connection.');
-            }
-        }
-
-        // createBill wrapper (so any calls to createBill() will work)
-        async function createBill() {
-            return handlePayment();
-        }
-
-        /**
-         * Modify showConfirmationModal to handle cart clearing on success
-         */
-        function showConfirmationModal(clearCart = false) {
-            closeCheckoutModal();
-            confirmationModal.classList.remove('hidden');
-            setTimeout(() => {
-                confirmationModal.querySelector('div').classList.remove('scale-90');
-            }, 10);
-            
-            // Only clear the cart if this function is called after a successful payment redirect
-            if (clearCart) {
-                cart = [];
-                updateCartUI();
-                // Clean the URL to prevent showing the modal again on refresh
-                window.history.replaceState({}, document.title, window.location.pathname);
-            }
-        }
-        
-        function closeConfirmationModal() {
-            confirmationModal.querySelector('div').classList.add('scale-90');
-            setTimeout(() => {
-                confirmationModal.classList.add('hidden');
-            }, 300);
-        }
-        
-        // Initial setup
-        document.addEventListener('DOMContentLoaded', () => {
-            populateDropdowns();
-
-            // Check for payment status in the URL after returning from toyyibPay
-            const urlParams = new URLSearchParams(window.location.search);
-            const status = urlParams.get('status');
-
-            if (status === 'success') {
-                // Show success modal and clear cart
-                showConfirmationModal(true); 
-            } else if (status === 'unsuccessful') {
-                alert('Payment was unsuccessful. You can try checking out again from your cart.');
-                // Clean the URL to prevent showing the alert again on refresh
-                window.history.replaceState({}, document.title, window.location.pathname);
-            }
+        cart.forEach(item => {
+          total += item.price * item.cartQuantity;
+          totalItems += item.cartQuantity;
+          const cartItemHtml = `
+            <div class="flex justify-between items-center py-2 border-b last:border-b-0">
+              <div class="text-left">
+                <div class="font-medium text-gray-800">${item.model} ${item.type}</div>
+                <div class="text-sm text-gray-600">${item.position} — ${item.pcsPerSet} pcs/set</div>
+                <div class="text-sm text-gray-700 font-bold">RM ${item.price.toFixed(2)} x ${item.cartQuantity}</div>
+              </div>
+              <div class="flex flex-col items-end gap-2">
+                <div class="text-sm text-gray-600">RM ${(item.price * item.cartQuantity).toFixed(2)}</div>
+                <div class="flex gap-1">
+                  <button onclick="decreaseCartQuantity('${item.id}')" class="px-2 py-1 bg-gray-200 rounded">-</button>
+                  <button onclick="increaseCartQuantity('${item.id}')" class="px-2 py-1 bg-gray-200 rounded">+</button>
+                  <button onclick="removeCartItem('${item.id}')" class="px-2 py-1 bg-red-500 text-white rounded">Remove</button>
+                </div>
+              </div>
+            </div>
+          `;
+          cartItemsEl.insertAdjacentHTML('beforeend', cartItemHtml);
         });
+      }
 
-        carModelSelect.addEventListener('change', updateProductTypeDropdown);
-        productTypeSelect.addEventListener('change', renderProducts);
-        document.getElementById('cart-button').addEventListener('click', showCartModal);
-        document.getElementById('checkout-button').addEventListener('click', showCheckoutModal);
-        // Now call the createBill() wrapper when pay-button is clicked
-        document.getElementById('pay-button').addEventListener('click', createBill);
-    </script>
+      cartTotalEl.textContent = `RM ${total.toFixed(2)}`;
+      cartItemCountEl.textContent = totalItems;
+    }
+
+    function openCartModal() {
+      cartModal.classList.remove('hidden');
+      setTimeout(() => cartModalPanel.classList.add('modal-enter-active'), 10);
+      cartModal.classList.add('modal-fade', 'show');
+      updateCartUI();
+    }
+    function closeCartModal() {
+      cartModalPanel.classList.remove('modal-enter-active');
+      cartModal.classList.remove('modal-fade', 'show');
+      setTimeout(() => cartModal.classList.add('hidden'), 220);
+    }
+
+    function openCheckoutModal() {
+      checkoutModal.classList.remove('hidden');
+      setTimeout(() => checkoutModalPanel.classList.add('modal-enter-active'), 10);
+      checkoutModal.classList.add('modal-fade', 'show');
+      renderCheckoutSummary();
+    }
+    function closeCheckoutModal() {
+      checkoutModalPanel.classList.remove('modal-enter-active');
+      checkoutModal.classList.remove('modal-fade', 'show');
+      setTimeout(() => checkoutModal.classList.add('hidden'), 220);
+    }
+
+    function openConfirmationModal() {
+      confirmationModal.classList.remove('hidden');
+      setTimeout(() => confirmationModal.classList.add('modal-fade', 'show'), 10);
+    }
+    function closeConfirmationModal() {
+      confirmationModal.classList.remove('modal-fade', 'show');
+      setTimeout(() => confirmationModal.classList.add('hidden'), 220);
+      cart = [];
+      updateCartUI();
+      closeCheckoutModal();
+      closeCartModal();
+    }
+
+    function renderCheckoutSummary() {
+      if (cart.length === 0) {
+        checkoutSummaryEl.innerHTML = '<p class="text-gray-500">No items in cart.</p>';
+        return;
+      }
+      let html = '<div class="space-y-2">';
+      let subtotal = 0;
+      cart.forEach(item => {
+        const lineTotal = item.price * item.cartQuantity;
+        subtotal += lineTotal;
+        html += `
+          <div class="flex justify-between">
+            <div>
+              <div class="font-medium">${item.model} ${item.type}</div>
+              <div class="text-sm text-gray-600">${item.position} — ${item.pcsPerSet} pcs/set</div>
+              <div class="text-sm text-gray-700">Qty: ${item.cartQuantity}</div>
+            </div>
+            <div class="text-right font-bold">RM ${lineTotal.toFixed(2)}</div>
+          </div>
+        `;
+      });
+      html += `<div class="border-t pt-3 flex justify-between font-bold"> <div>Subtotal</div> <div>RM ${subtotal.toFixed(2)}</div></div>`;
+      html += '</div>';
+      checkoutSummaryEl.innerHTML = html;
+    }
+
+    // Client-side orchestration for payment and shipment (server endpoints expected)
+    async function createToyyibBillOnServer(order) {
+      const res = await fetch('/api/toyyib/create-bill', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(order)
+      });
+      return res.json();
+    }
+
+    async function createEasyParcelOnServer(order) {
+      const res = await fetch('/api/easyparcel/create-shipment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(order)
+      });
+      return res.json();
+    }
+
+    document.getElementById('pay-button').addEventListener('click', async () => {
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      if (!name || !email || !phone) { alert('Please fill in your name, email and phone number.'); return; }
+      if (cart.length === 0) { alert('Your cart is empty.'); return; }
+
+      const order = {
+        customer: { name, email, phone },
+        items: cart.map(i => ({ id: i.id, model: i.model, type: i.type, position: i.position, pcsPerSet: i.pcsPerSet, unitPrice: i.price, quantity: i.cartQuantity })),
+        total: cart.reduce((s, i) => s + i.price * i.cartQuantity, 0)
+      };
+
+      const payBtn = document.getElementById('pay-button');
+      payBtn.disabled = true;
+      payBtn.classList.add('opacity-50', 'cursor-not-allowed');
+
+      try {
+        const billResp = await createToyyibBillOnServer(order);
+        if (!billResp || !billResp.success) throw new Error('Failed to create ToyyibPay bill');
+
+        if (billResp.paymentUrl) {
+          window.location.href = billResp.paymentUrl;
+          return;
+        }
+        if (billResp.billcode) {
+          window.location.href = `https://toyyibpay.com/${billResp.billcode}`;
+          return;
+        }
+
+        // Fallback demo: create shipment and show confirmation
+        const shipmentResp = await createEasyParcelOnServer({ order, payment: { success: true, tx: 'MOCKTX' } });
+        if (shipmentResp && shipmentResp.success) openConfirmationModal();
+      } catch (err) {
+        console.error(err);
+        alert('Payment initialization failed. Check console for details.');
+      } finally {
+        payBtn.disabled = false;
+        payBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+      }
+    });
+
+    // Event wiring
+    document.getElementById('cart-button').addEventListener('click', openCartModal);
+    document.getElementById('close-cart').addEventListener('click', closeCartModal);
+    document.getElementById('checkout-button').addEventListener('click', () => { closeCartModal(); openCheckoutModal(); });
+    document.getElementById('close-checkout').addEventListener('click', closeCheckoutModal);
+    document.getElementById('close-confirmation').addEventListener('click', closeConfirmationModal);
+    carModelSelect.addEventListener('change', updateProductTypeDropdown);
+    productTypeSelect.addEventListener('change', renderProducts);
+
+    if (uniqueModels.length > 0) populateDropdowns();
+    else { carModelSelect.innerHTML = '<option value="">No models available</option>'; productTypeSelect.innerHTML = '<option value="">No types</option>'; productListEl.innerHTML = '<p class="text-gray-500 text-center py-4">No product data available.</p>'; }
+
+    updateCartUI();
+
+    // Expose functions used by inline onclick attributes
+    window.addToCart = addToCart;
+    window.increaseCartQuantity = increaseCartQuantity;
+    window.decreaseCartQuantity = decreaseCartQuantity;
+    window.removeCartItem = removeCartItem;
+    window.closeCartModal = closeCartModal;
+    window.closeCheckoutModal = closeCheckoutModal;
+    window.closeConfirmationModal = closeConfirmationModal;
+  </script>
 </body>
 </html>
