@@ -100,7 +100,9 @@
       </div>
 
       <div id="checkout-summary" class="max-h-64 overflow-y-auto mb-6"></div>
-
+    <!-- ✅ Place courier options here -->
+    <div id="courier-options" class="mb-4"></div>
+      
       <button id="pay-button" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-xl transition duration-300 active:scale-98">Proceed to Payment</button>
     </div>
   </div>
@@ -680,7 +682,24 @@ AXBSSP,AXIA/BEZZA,SPORT SPRING,1SET,4,390
         items: cart.map(i => ({ id: i.id, model: i.model, type: i.type, position: i.position, pcsPerSet: i.pcsPerSet, unitPrice: i.price, quantity: i.cartQuantity })),
         total: parseFloat(cart.reduce((s, i) => s + i.price * i.cartQuantity, 0).toFixed(2))
 };
-
+const courierResp = await fetchCourierOptions(order);
+  if (courierResp.success) {
+    const options = courierResp.data.result[0].rates; // EasyParcel returns rates array
+    const courierList = document.getElementById('courier-options');
+    courierList.innerHTML = '';
+    options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.textContent = `${opt.courier_name} - RM ${opt.price}`;
+      btn.className = "w-full bg-gray-200 hover:bg-gray-300 p-2 rounded mb-2";
+      btn.onclick = () => {
+        order.selectedCourier = opt.courier_id;
+        // enable payment button
+        document.getElementById('pay-button').disabled = false;
+      };
+      courierList.appendChild(btn);
+    });
+  }
+});
       const payBtn = document.getElementById('pay-button');
       payBtn.disabled = true;
       payBtn.classList.add('opacity-50', 'cursor-not-allowed');
@@ -735,5 +754,6 @@ AXBSSP,AXIA/BEZZA,SPORT SPRING,1SET,4,390
   </script>
 </body>
 </html>
+
 
 
