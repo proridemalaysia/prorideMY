@@ -27,7 +27,7 @@ app.post('/api/toyyib/create-bill', async (req, res) => {
     form.append('billDescription', `Order total RM ${order.total}`);
     form.append('billPriceSetting', '1');
     form.append('billPayorInfo', '1');
-    form.append('billAmount', order.total.toFixed(2));
+    form.append('billAmount', Math.round(order.total * 100));
     form.append('billReturnUrl', process.env.TOYYIBPAY_RETURN_URL);
     form.append('billCallbackUrl', process.env.TOYYIBPAY_CALLBACK_URL);
     form.append('billTo', order.customer.name);
