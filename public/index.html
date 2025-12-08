@@ -81,6 +81,15 @@
           <input type="text" id="name" placeholder="Your Name" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
         </div>
         <div>
+  <label for="address" class="text-sm font-medium text-gray-700 block mb-1">Delivery Address</label>
+  <input type="text" id="address" placeholder="Street, City, State" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+</div>
+<div>
+  <label for="postcode" class="text-sm font-medium text-gray-700 block mb-1">Postcode</label>
+  <input type="text" id="postcode" placeholder="e.g., 50000" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+</div>
+
+        <div>
           <label for="email" class="text-sm font-medium text-gray-700 block mb-1">Email</label>
           <input type="email" id="email" placeholder="you@example.com" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
         </div>
@@ -661,11 +670,13 @@ AXBSSP,AXIA/BEZZA,SPORT SPRING,1SET,4,390
       const name = document.getElementById('name').value.trim();
       const email = document.getElementById('email').value.trim();
       const phone = document.getElementById('phone').value.trim();
-      if (!name || !email || !phone) { alert('Please fill in your name, email and phone number.'); return; }
+      const address: document.getElementById('address').value.trim(),
+    const postcode: document.getElementById('postcode').value.trim()
+      if (!name || !email || !phone || !address || !postcode) { alert('Please fill in your name, email, phone number, address and postcode'); return; }
       if (cart.length === 0) { alert('Your cart is empty.'); return; }
 
       const order = {
-        customer: { name, email, phone },
+        customer: { name, email, phone, address, postcode },
         items: cart.map(i => ({ id: i.id, model: i.model, type: i.type, position: i.position, pcsPerSet: i.pcsPerSet, unitPrice: i.price, quantity: i.cartQuantity })),
         total: parseFloat(cart.reduce((s, i) => s + i.price * i.cartQuantity, 0).toFixed(2))
 };
@@ -724,4 +735,5 @@ AXBSSP,AXIA/BEZZA,SPORT SPRING,1SET,4,390
   </script>
 </body>
 </html>
+
 
