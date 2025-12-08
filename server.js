@@ -2,9 +2,16 @@
 require('dotenv').config();
 const express = require('express');
 const fetch = require('node-fetch');
+const path = require('path');
 
 const app = express();
 app.use(express.json());
+
+// === Serve frontend from /public ===
+app.use(express.static(path.join(__dirname, 'public')));
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 // === ToyyibPay Bill Creation ===
 app.post('/api/toyyib/create-bill', async (req, res) => {
