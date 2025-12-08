@@ -1,32 +1,25 @@
 // server.js
 require('dotenv').config();
 const express = require('express');
-const path = require('path');
-const fetch = require('node-fetch'); // make sure node-fetch is installed
-const cors = require('cors');
+const fetch = require('node-fetch');
+const FormData = require('form-data');
 
 const app = express();
-const port = process.env.PORT || 3000;
-
-app.use(cors());
 app.use(express.json());
 
-// Serve static files from public folder
-app.use(express.static(path.join(__dirname, 'public')));
-
-// === ToyyibPay: Create Bill ===
+// === ToyyibPay Bill Creation ===
 app.post('/api/toyyib/create-bill', async (req, res) => {
   try {
     const order = req.body;
-    console.log('ToyyibPay create-bill called, order:', order);
+    console.log('Creating ToyyibPay bill for order:', order);
 
-    const form = new URLSearchParams();
-    form.append('userSecretKey', process.env.TOYYIBPAY_SECRETKEY);
-    form.append('categoryCode', process.env.TOYYIBPAY_CATEGORY);
-    form.append('billName', 'Proride Order');
-    form.append('billDescription', `Order total RM ${order.total}`);
-    form.append('billPriceSetting', '1');
-    form.append('billPayorInfo', '1');
+    const form = new FormData();
+    form.append('userSecretKey', process.env.TOYYIBPAY_SECRET_KEY);
+    form.append('categoryCode', process.env.TOYYIBPAY_CATEGORY_CODE);
+    form.append('billName', 'Proride Parts Order');
+    form.append('billDescription', 'Order payment');
+    form.append('billPriceSetting', 1);
+    // ✅ ToyyibPay expects amount in sen
     form.append('billAmount', Math.round(order.total * 100));
     form.append('billReturnUrl', process.env.TOYYIBPAY_RETURN_URL);
     form.append('billCallbackUrl', process.env.TOYYIBPAY_CALLBACK_URL);
@@ -42,13 +35,14 @@ app.post('/api/toyyib/create-bill', async (req, res) => {
     const data = await response.json();
     console.log('ToyyibPay response:', data);
 
-    if (!data || !data[0] || !data[0].BillCode) {
-      return res.status(500).json({ success: false, error: 'Failed to create bill', raw: data });
+    if (Array.isArray(data) && data[0] && data[0].BillCode) {
+      return res.json({
+        success: true,
+        paymentUrl: `https://toyyibpay.com/${data[0].BillCode}`
+      });
+    } else {
+      return res.json({ success: false, error: data });
     }
-
-    const billcode = data[0].BillCode;
-    const paymentUrl = `https://toyyibpay.com/${billcode}`;
-    return res.json({ success: true, billcode, paymentUrl });
   } catch (err) {
     console.error('ToyyibPay error:', err);
     return res.status(500).json({ success: false, error: err.message });
@@ -56,70 +50,99 @@ app.post('/api/toyyib/create-bill', async (req, res) => {
 });
 
 // === ToyyibPay Callback ===
-app.post('/api/toyyib/callback', (req, res) => {
+app.post('/api/toyyib/callback', async (req, res) => {
   console.log('ToyyibPay callback received:', req.body);
-  // TODO: verify authenticity and update order status in DB
+
+  const { status, order_id } = req.body;
+
+  if (status === '1') { // 1 = payment success
+    // TODO: lookup order by order_id (from DB or memory)
+    const order = req.body.order || {}; // placeholder
+
+    // Trigger EasyParcel shipment creation
+    try {
+      const shipmentResp = await createEasyParcelShipment(order);
+      console.log('EasyParcel shipment created:', shipmentResp);
+    } catch (err) {
+      console.error('EasyParcel shipment error:', err);
+    }
+  }
+
   res.json({ success: true });
 });
 
-// === EasyParcel: Create Shipment (scaffold) ===
-app.post('/api/easyparcel/create-shipment', async (req, res) => {
+// === EasyParcel Rate Checking ===
+app.post('/api/easyparcel/check-rate', async (req, res) => {
   try {
-    const { order, payment } = req.body;
-    console.log('EasyParcel create-shipment called:', order);
+    const { order } = req.body;
+
+    const totalWeight = order.items.reduce((sum, it) => {
+      if (it.position.includes('FRONT') || it.position.includes('REAR')) return sum + 5 * it.quantity;
+      if (it.position.includes('1SET')) return sum + 10 * it.quantity;
+      if (it.type.includes('Sport Spring')) return sum + 8 * it.quantity;
+      return sum + 5 * it.quantity;
+    }, 0);
 
     const payload = {
       api_key: process.env.EASYPARCEL_API_KEY,
-      pickup: {
-        name: process.env.SENDER_NAME,
-        phone: process.env.SENDER_PHONE,
-        address: process.env.SENDER_ADDRESS
-      },
-      delivery: {
-        name: order.customer.name,
-        phone: order.customer.phone,
-        address: order.customer.address || 'Customer address placeholder'
-      },
-      parcels: order.items.map(it => ({
-        description: `${it.model} ${it.type}`,
-        quantity: it.quantity,
-        weight: 1
-      }))
+      bulk: [{
+        pick_code: "43000", // your pickup postcode
+        send_code: order.customer.postcode,
+        weight: totalWeight
+      }]
     };
 
-    // Example EasyParcel endpoint (replace with real one)
-    const easyUrl = 'https://apiv2.easyparcel.my/v1/parcel/create';
-    const response = await fetch(easyUrl, {
+    const response = await fetch('https://apiv2.easyparcel.my/?ac=EPOrderPriceChecking', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.EASYPARCEL_API_KEY}`
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
 
     const data = await response.json();
-    console.log('EasyParcel response:', data);
+    console.log('EasyParcel rate response:', data);
 
     return res.json({ success: true, data });
   } catch (err) {
-    console.error('EasyParcel error:', err);
+    console.error('EasyParcel rate error:', err);
     return res.status(500).json({ success: false, error: err.message });
   }
 });
 
-// === EasyParcel Callback (optional) ===
-app.post('/api/easyparcel/callback', (req, res) => {
-  console.log('EasyParcel callback received:', req.body);
-  // TODO: verify and update shipment status
-  res.json({ success: true });
-});
+// === EasyParcel Shipment Creation Helper ===
+async function createEasyParcelShipment(order) {
+  const totalWeight = order.items.reduce((sum, it) => {
+    if (it.position.includes('FRONT') || it.position.includes('REAR')) return sum + 5 * it.quantity;
+    if (it.position.includes('1SET')) return sum + 10 * it.quantity;
+    if (it.type.includes('Sport Spring')) return sum + 8 * it.quantity;
+    return sum + 5 * it.quantity;
+  }, 0);
 
-// === Fallback route: serve index.html for any other GET ===
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
+  const payload = {
+    api_key: process.env.EASYPARCEL_API_KEY,
+    bulk: [{
+      pick_name: process.env.SENDER_NAME,
+      pick_contact: process.env.SENDER_PHONE,
+      pick_addr1: process.env.SENDER_ADDRESS,
+      pick_postcode: "43000",
+      send_name: order.customer.name,
+      send_contact: order.customer.phone,
+      send_addr1: order.customer.address,
+      send_postcode: order.customer.postcode,
+      weight: totalWeight,
+      content: "Car parts",
+      value: order.total
+    }]
+  };
 
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
-});
+  const response = await fetch('https://apiv2.easyparcel.my/?ac=EPSubmitOrder', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+
+  return response.json();
+}
+
+// === Start server ===
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
