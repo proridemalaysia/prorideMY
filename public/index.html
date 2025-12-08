@@ -291,20 +291,29 @@
       `).join('');
     }
 
-    function renderCourierOptions() {
-      courierOptionsEl.innerHTML = `
-        <h4 class="text-lg font-bold text-gray-800 border-b pb-2 mb-2">Courier Options</h4>
-        <label class="block mb-2">
-          <input type="radio" name="courier" value="Poslaju" checked> Poslaju (RM 10)
-        </label>
-        <label class="block mb-2">
-          <input type="radio" name="courier" value="J&T"> J&T Express (RM 12)
-        </label>
-        <label class="block mb-2">
-          <input type="radio" name="courier" value="GDex"> GDex (RM 15)
-        </label>
-      `;
-    }
+    // Live courier options from backend (EasyParcel)
+async function renderCourierOptions(postcode = '43000', weight = 3.0) {
+  try {
+    const res = await fetch('/api/easyparcel', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ postcode, weight })
+    });
+
+    const couriers = await res.json();
+
+    courierOptionsEl.innerHTML = couriers.map(c => `
+      <label class="block mb-2">
+        <input type="radio" name="courier" value="${c.courier_id}" data-price="${c.price}">
+        ${c.courier_name} (RM ${Number(c.price).toFixed(2)})
+      </label>
+    `).join('');
+  } catch (err) {
+    courierOptionsEl.innerHTML = '<p class="text-red-600">Failed to load courier options.</p>';
+    console.error('EasyParcel error:', err);
+  }
+}
+
 
     // Modal logic
     cartButton.addEventListener('click', () => {
@@ -316,23 +325,62 @@
       cartModal.classList.add('hidden');
     });
 
-    checkoutButton.addEventListener('click', () => {
-      if (cart.length > 0) {
-        cartModal.classList.add('hidden');
-        renderCheckoutSummary();
-        renderCourierOptions();
-        checkoutModal.classList.remove('hidden');
-      }
-    });
+    // Open checkout and load courier options
+checkoutButton.addEventListener('click', () => {
+  if (cart.length > 0) {
+    cartModal.classList.add('hidden');
+    renderCheckoutSummary();
+    // Call EasyParcel via backend and render options
+    renderCourierOptions(); // pass actual postcode/weight if available
+    checkoutModal.classList.remove('hidden');
+  }
+});
+
 
     closeCheckoutBtn.addEventListener('click', () => {
       checkoutModal.classList.add('hidden');
     });
 
-    payButton.addEventListener('click', () => {
-      checkoutModal.classList.add('hidden');
-      confirmationModal.classList.remove('hidden');
+  // Create ToyyibPay bill and redirect
+  payButton.addEventListener('click', async () => {
+  const name = document.getElementById('name')?.value || '';
+  const email = document.getElementById('email')?.value || '';
+  const phone = document.getElementById('phone')?.value || '';
+
+  const selectedCourier = document.querySelector('input[name="courier"]:checked');
+  const courierPrice = selectedCourier ? Number(selectedCourier.dataset.price) : 0;
+
+  const cartTotal = cart.reduce((sum, item) => sum + Number(item.PRICE) * item.cartQuantity, 0);
+  const finalAmount = cartTotal + courierPrice;
+
+  if (!name || !email || !phone) {
+    alert('Please fill in name, email, and phone.');
+    return;
+  }
+  if (!selectedCourier) {
+    alert('Please select a courier option.');
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/toyyibpay', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, phone, amount: finalAmount })
     });
+
+    const { url } = await res.json();
+    if (url) {
+      window.location.href = url;
+    } else {
+      alert('Payment URL not received.');
+    }
+  } catch (err) {
+    alert('Payment initialization failed.');
+    console.error('ToyyibPay error:', err);
+  }
+});
+
 
     closeConfirmationBtn.addEventListener('click', () => {
       confirmationModal.classList.add('hidden');
@@ -350,6 +398,7 @@
 
 </body>
 </html>
+
 
 
 
