@@ -672,8 +672,8 @@ AXBSSP,AXIA/BEZZA,SPORT SPRING,1SET,4,390
       const name = document.getElementById('name').value.trim();
       const email = document.getElementById('email').value.trim();
       const phone = document.getElementById('phone').value.trim();
-      const address = document.getElementById('address').value.trim(),
-    const postcode = document.getElementById('postcode').value.trim()
+      const address = document.getElementById('address').value.trim();
+      const postcode = document.getElementById('postcode').value.trim();
       if (!name || !email || !phone || !address || !postcode) { alert('Please fill in your name, email, phone number, address and postcode'); return; }
       if (cart.length === 0) { alert('Your cart is empty.'); return; }
 
@@ -754,6 +754,7 @@ const courierResp = await fetchCourierOptions(order);
   </script>
 </body>
 </html>
+
 
 
 
