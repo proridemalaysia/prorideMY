@@ -667,8 +667,8 @@ AXBSSP,AXIA/BEZZA,SPORT SPRING,1SET,4,390
       const order = {
         customer: { name, email, phone },
         items: cart.map(i => ({ id: i.id, model: i.model, type: i.type, position: i.position, pcsPerSet: i.pcsPerSet, unitPrice: i.price, quantity: i.cartQuantity })),
-        total: cart.reduce((s, i) => s + i.price * i.cartQuantity, 0)
-      };
+        total: parseFloat(cart.reduce((s, i) => s + i.price * i.cartQuantity, 0).toFixed(2))
+};
 
       const payBtn = document.getElementById('pay-button');
       payBtn.disabled = true;
@@ -724,3 +724,4 @@ AXBSSP,AXIA/BEZZA,SPORT SPRING,1SET,4,390
   </script>
 </body>
 </html>
+
