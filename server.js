@@ -1,8 +1,7 @@
-// server.js update
+// server.js
 require('dotenv').config();
 const express = require('express');
 const fetch = require('node-fetch');
-const FormData = require('form-data');
 
 const app = express();
 app.use(express.json());
@@ -13,23 +12,24 @@ app.post('/api/toyyib/create-bill', async (req, res) => {
     const order = req.body;
     console.log('Creating ToyyibPay bill for order:', order);
 
-    const form = new FormData();
-    form.append('userSecretKey', process.env.TOYYIBPAY_SECRET_KEY);
-    form.append('categoryCode', process.env.TOYYIBPAY_CATEGORY_CODE);
-    form.append('billName', 'Proride Parts Order');
-    form.append('billDescription', 'Order payment');
-    form.append('billPriceSetting', 1);
+    const params = new URLSearchParams();
+    params.append('userSecretKey', process.env.TOYYIBPAY_SECRET_KEY);
+    params.append('categoryCode', process.env.TOYYIBPAY_CATEGORY_CODE);
+    params.append('billName', 'Proride Parts Order');
+    params.append('billDescription', 'Order payment');
+    params.append('billPriceSetting', 1);
     // ✅ ToyyibPay expects amount in sen
-    form.append('billAmount', Math.round(order.total * 100));
-    form.append('billReturnUrl', process.env.TOYYIBPAY_RETURN_URL);
-    form.append('billCallbackUrl', process.env.TOYYIBPAY_CALLBACK_URL);
-    form.append('billTo', order.customer.name);
-    form.append('billEmail', order.customer.email);
-    form.append('billPhone', order.customer.phone);
+    params.append('billAmount', Math.round(order.total * 100));
+    params.append('billReturnUrl', process.env.TOYYIBPAY_RETURN_URL);
+    params.append('billCallbackUrl', process.env.TOYYIBPAY_CALLBACK_URL);
+    params.append('billTo', order.customer.name);
+    params.append('billEmail', order.customer.email);
+    params.append('billPhone', order.customer.phone);
 
     const response = await fetch('https://toyyibpay.com/index.php/api/createBill', {
       method: 'POST',
-      body: form
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: params
     });
 
     const data = await response.json();
@@ -130,7 +130,8 @@ async function createEasyParcelShipment(order) {
       send_postcode: order.customer.postcode,
       weight: totalWeight,
       content: "Car parts",
-      value: order.total
+      value: order.total,
+      service_id: order.selectedCourier || "" // ✅ use customer’s chosen courier
     }]
   };
 
